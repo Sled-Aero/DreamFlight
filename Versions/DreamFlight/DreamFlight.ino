@@ -25,17 +25,16 @@ Everyone that sends me pictures and videos of your flying creations! -Nick
 */
 
 
-
 //========================================================================================================================//
 //                                                 USER-SPECIFIED DEFINES                                                 //                                                                 
 //========================================================================================================================//
 
 //Uncomment only one receiver type
-#define USE_PWM_RX
+// #define USE_PWM_RX
 //#define USE_PPM_RX
 //#define USE_SBUS_RX
 //#define USE_DSM_RX
-static const uint8_t num_DSM_channels = 6; //If using DSM RX, change this to match the number of transmitter channels you have
+//static const uint8_t num_DSM_channels = 6; //If using DSM RX, change this to match the number of transmitter channels you have
 
 //Uncomment only one IMU
 #define USE_MPU6050_I2C //Default
@@ -54,9 +53,7 @@ static const uint8_t num_DSM_channels = 6; //If using DSM RX, change this to mat
 //#define ACCEL_16G
 
 
-
 //========================================================================================================================//
-
 
 
 //REQUIRED LIBRARIES (included with download in main sketch folder)
@@ -65,13 +62,15 @@ static const uint8_t num_DSM_channels = 6; //If using DSM RX, change this to mat
 #include <SPI.h>      //SPI communication
 #include <PWMServo.h> //Commanding any extra actuators, installed with teensyduino installer
 
-#if defined USE_SBUS_RX
-  #include "src/SBUS/SBUS.h"   //sBus interface
-#endif
+#include "RX.h"
 
-#if defined USE_DSM_RX
-  #include "src/DSMRX/DSMRX.h"  
-#endif
+// #if defined USE_SBUS_RX
+//   #include "src/SBUS/SBUS.h"   //sBus interface
+// #endif
+
+// #if defined USE_DSM_RX
+//   #include "src/DSMRX/DSMRX.h"  
+// #endif
 
 #if defined USE_MPU6050_I2C
   #include "src/MPU6050/MPU6050.h"
@@ -84,11 +83,7 @@ static const uint8_t num_DSM_channels = 6; //If using DSM RX, change this to mat
 #endif
 
 
-
 //========================================================================================================================//
-
-
-
 //Setup gyro and accel full scale value selection and scale factor
 
 #if defined USE_MPU6050_I2C
@@ -140,32 +135,31 @@ static const uint8_t num_DSM_channels = 6; //If using DSM RX, change this to mat
 #endif
 
 
-
 //========================================================================================================================//
-//                                               USER-SPECIFIED VARIABLES                                                 //                           
+//  USER-SPECIFIED VARIABLES                     
 //========================================================================================================================//
 
 //Radio failsafe values for every channel in the event that bad reciever data is detected. Recommended defaults:
-unsigned long channel_1_fs = 1000; //thro
-unsigned long channel_2_fs = 1500; //ail
-unsigned long channel_3_fs = 1500; //elev
-unsigned long channel_4_fs = 1500; //rudd
-unsigned long channel_5_fs = 2000; //gear, greater than 1500 = throttle cut
-unsigned long channel_6_fs = 2000; //aux1
+const unsigned long channel_1_fs = 1000; //thro
+const unsigned long channel_2_fs = 1500; //ail
+const unsigned long channel_3_fs = 1500; //elev
+const unsigned long channel_4_fs = 1500; //rudd
+const unsigned long channel_5_fs = 2000; //gear, greater than 1500 = throttle cut
+const unsigned long channel_6_fs = 2000; //aux1
 
 //Filter parameters - Defaults tuned for 2kHz loop rate; Do not touch unless you know what you are doing:
-float B_madgwick = 0.04;  //Madgwick filter parameter
-float B_accel = 0.14;     //Accelerometer LP filter paramter, (MPU6050 default: 0.14. MPU9250 default: 0.2)
-float B_gyro = 0.1;       //Gyro LP filter paramter, (MPU6050 default: 0.1. MPU9250 default: 0.17)
-float B_mag = 1.0;        //Magnetometer LP filter parameter
+const float B_madgwick = 0.04;  //Madgwick filter parameter
+const float B_accel = 0.14;     //Accelerometer LP filter paramter, (MPU6050 default: 0.14. MPU9250 default: 0.2)
+const float B_gyro = 0.1;       //Gyro LP filter paramter, (MPU6050 default: 0.1. MPU9250 default: 0.17)
+const float B_mag = 1.0;        //Magnetometer LP filter parameter
 
 //Magnetometer calibration parameters - if using MPU9250, uncomment calibrateMagnetometer() in void setup() to get these values, else just ignore these
-float MagErrorX = 0.0;
-float MagErrorY = 0.0; 
-float MagErrorZ = 0.0;
-float MagScaleX = 1.0;
-float MagScaleY = 1.0;
-float MagScaleZ = 1.0;
+const float MagErrorX = 0.0;
+const float MagErrorY = 0.0; 
+const float MagErrorZ = 0.0;
+const float MagScaleX = 1.0;
+const float MagScaleY = 1.0;
+const float MagScaleZ = 1.0;
 
 //IMU calibration parameters - calibrate IMU using calculate_IMU_error() in the void setup() to get these values, then comment out calculate_IMU_error()
 float AccErrorX = 0.0;
@@ -202,21 +196,10 @@ float Ki_yaw = 0.05;          //Yaw I-gain
 float Kd_yaw = 0.00015;       //Yaw D-gain (be careful when increasing too high, motors will begin to overheat!)
 
 
+//=============================================================================================//
+//  DECLARE PINS     
+//=============================================================================================//                                          
 
-//========================================================================================================================//
-//                                                     DECLARE PINS                                                       //                           
-//========================================================================================================================//                                          
-
-//NOTE: Pin 13 is reserved for onboard LED, pins 18 and 19 are reserved for the MPU6050 IMU for default setup
-//Radio:
-//Note: If using SBUS, connect to pin 21 (RX5), if using DSM, connect to pin 15 (RX3)
-const int ch1Pin = 15; //throttle
-const int ch2Pin = 16; //ail
-const int ch3Pin = 17; //ele
-const int ch4Pin = 20; //rudd
-const int ch5Pin = 21; //gear (throttle cut)
-const int ch6Pin = 22; //aux1 (free aux channel)
-const int PPM_Pin = 23;
 //OneShot125 ESC pin outputs:
 const int m1Pin = 0;
 const int m2Pin = 1;
@@ -256,18 +239,21 @@ unsigned long blink_counter, blink_delay;
 bool blinkAlternate;
 
 //Radio communication:
-unsigned long channel_1_pwm, channel_2_pwm, channel_3_pwm, channel_4_pwm, channel_5_pwm, channel_6_pwm;
-unsigned long channel_1_pwm_prev, channel_2_pwm_prev, channel_3_pwm_prev, channel_4_pwm_prev;
+unsigned long pwm_channels[6];
+unsigned long pwm_channels_prev[6];
+RX *rx;
+// unsigned long channel_1_pwm, channel_2_pwm, channel_3_pwm, channel_4_pwm, channel_5_pwm, channel_6_pwm;
+// unsigned long channel_1_pwm_prev, channel_2_pwm_prev, channel_3_pwm_prev, channel_4_pwm_prev;
 
-#if defined USE_SBUS_RX
-  SBUS sbus(Serial5);
-  uint16_t sbusChannels[16];
-  bool sbusFailSafe;
-  bool sbusLostFrame;
-#endif
-#if defined USE_DSM_RX
-  DSM1024 DSM;
-#endif
+// #if defined USE_SBUS_RX
+//   SBUS sbus(Serial5);
+//   uint16_t sbusChannels[16];
+//   bool sbusFailSafe;
+//   bool sbusLostFrame;
+// #endif
+// #if defined USE_DSM_RX
+//   DSM1024 DSM;
+// #endif
 
 //IMU:
 float AccX, AccY, AccZ;
@@ -299,9 +285,8 @@ float s1_command_scaled, s2_command_scaled, s3_command_scaled, s4_command_scaled
 int s1_command_PWM, s2_command_PWM, s3_command_PWM, s4_command_PWM, s5_command_PWM, s6_command_PWM, s7_command_PWM;
 
 
-
 //========================================================================================================================//
-//                                                      VOID SETUP                                                        //                           
+// VOID SETUP                        
 //========================================================================================================================//
 
 void setup() {
@@ -330,15 +315,19 @@ void setup() {
   delay(5);
 
   //Initialize radio communication
-  radioSetup();
+  // radioSetup();
+  rx = new RX_PPM();
+  // RX rx = new RX_PWM();
+  // RX rx = new RX_SBUS(Serial3);
+  // RX rx = new RX_DSM(Serial3);
   
   //Set radio channels to default (safe) values before entering main loop
-  channel_1_pwm = channel_1_fs;
-  channel_2_pwm = channel_2_fs;
-  channel_3_pwm = channel_3_fs;
-  channel_4_pwm = channel_4_fs;
-  channel_5_pwm = channel_5_fs;
-  channel_6_pwm = channel_6_fs;
+  pwm_channels[0] = channel_1_fs;
+  pwm_channels[1] = channel_2_fs;
+  pwm_channels[2] = channel_3_fs;
+  pwm_channels[3] = channel_4_fs;
+  pwm_channels[4] = channel_5_fs;
+  pwm_channels[5] = channel_6_fs;
 
   //Initialize IMU communication
   IMUinit();
@@ -376,13 +365,11 @@ void setup() {
 
   //If using MPU9250 IMU, uncomment for one-time magnetometer calibration (may need to repeat for new locations)
   //calibrateMagnetometer(); //Generates magentometer error and scale factors to be pasted in user-specified variables section
-
 }
 
 
-
 //========================================================================================================================//
-//                                                       MAIN LOOP                                                        //                           
+//  MAIN LOOP  
 //========================================================================================================================//
                                                   
 void loop() {
@@ -435,7 +422,7 @@ void loop() {
   servo7.write(s7_command_PWM);
     
   //Get vehicle commands for next loop iteration
-  getCommands(); //Pulls current available radio commands
+  rx->getCommands(pwm_channels); //Pulls current available radio commands
   failSafe(); //Prevent failures in event of bad receiver connection, defaults to failsafe values assigned in setup
 
   //Regulate loop rate
@@ -443,11 +430,9 @@ void loop() {
 }
 
 
-
 //========================================================================================================================//
-//                                                      FUNCTIONS                                                         //                           
+// FUNCTIONS                       
 //========================================================================================================================//
-
 
 
 void controlMixer() {
@@ -896,10 +881,10 @@ void getDesState() {
    * (rate mode). yaw_des is scaled to be within max yaw in degrees/sec. Also creates roll_passthru, pitch_passthru, and
    * yaw_passthru variables, to be used in commanding motors/servos with direct unstabilized commands in controlMixer().
    */
-  thro_des = (channel_1_pwm - 1000.0)/1000.0; //Between 0 and 1
-  roll_des = (channel_2_pwm - 1500.0)/500.0; //Between -1 and 1
-  pitch_des = (channel_3_pwm - 1500.0)/500.0; //Between -1 and 1
-  yaw_des = (channel_4_pwm - 1500.0)/500.0; //Between -1 and 1
+  thro_des = (pwm_channels[0] - 1000.0)/1000.0; //Between 0 and 1
+  roll_des = (pwm_channels[1] - 1500.0)/500.0; //Between -1 and 1
+  pitch_des = (pwm_channels[2] - 1500.0)/500.0; //Between -1 and 1
+  yaw_des = (pwm_channels[3] - 1500.0)/500.0; //Between -1 and 1
   roll_passthru = roll_des/2.0; //Between -0.5 and 0.5
   pitch_passthru = pitch_des/2.0; //Between -0.5 and 0.5
   yaw_passthru = yaw_des/2.0; //Between -0.5 and 0.5
@@ -930,7 +915,7 @@ void controlANGLE() {
   //Roll
   error_roll = roll_des - roll_IMU;
   integral_roll = integral_roll_prev + error_roll*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_roll = 0;
   }
   integral_roll = constrain(integral_roll, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -940,7 +925,7 @@ void controlANGLE() {
   //Pitch
   error_pitch = pitch_des - pitch_IMU;
   integral_pitch = integral_pitch_prev + error_pitch*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_pitch = 0;
   }
   integral_pitch = constrain(integral_pitch, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -950,7 +935,7 @@ void controlANGLE() {
   //Yaw, stablize on rate from GyroZ
   error_yaw = yaw_des - GyroZ;
   integral_yaw = integral_yaw_prev + error_yaw*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_yaw = 0;
   }
   integral_yaw = constrain(integral_yaw, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -977,7 +962,7 @@ void controlANGLE2() {
   //Roll
   error_roll = roll_des - roll_IMU;
   integral_roll_ol = integral_roll_prev_ol + error_roll*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_roll_ol = 0;
   }
   integral_roll_ol = constrain(integral_roll_ol, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -987,7 +972,7 @@ void controlANGLE2() {
   //Pitch
   error_pitch = pitch_des - pitch_IMU;
   integral_pitch_ol = integral_pitch_prev_ol + error_pitch*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_pitch_ol = 0;
   }
   integral_pitch_ol = constrain(integral_pitch_ol, -i_limit, i_limit); //saturate integrator to prevent unsafe buildup
@@ -1007,7 +992,7 @@ void controlANGLE2() {
   //Roll
   error_roll = roll_des_ol - GyroX;
   integral_roll_il = integral_roll_prev_il + error_roll*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_roll_il = 0;
   }
   integral_roll_il = constrain(integral_roll_il, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -1017,7 +1002,7 @@ void controlANGLE2() {
   //Pitch
   error_pitch = pitch_des_ol - GyroY;
   integral_pitch_il = integral_pitch_prev_il + error_pitch*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_pitch_il = 0;
   }
   integral_pitch_il = constrain(integral_pitch_il, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -1027,7 +1012,7 @@ void controlANGLE2() {
   //Yaw
   error_yaw = yaw_des - GyroZ;
   integral_yaw = integral_yaw_prev + error_yaw*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_yaw = 0;
   }
   integral_yaw = constrain(integral_yaw, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -1060,7 +1045,7 @@ void controlRATE() {
   //Roll
   error_roll = roll_des - GyroX;
   integral_roll = integral_roll_prev + error_roll*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_roll = 0;
   }
   integral_roll = constrain(integral_roll, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -1070,7 +1055,7 @@ void controlRATE() {
   //Pitch
   error_pitch = pitch_des - GyroY;
   integral_pitch = integral_pitch_prev + error_pitch*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_pitch = 0;
   }
   integral_pitch = constrain(integral_pitch, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -1080,7 +1065,7 @@ void controlRATE() {
   //Yaw, stablize on rate from GyroZ
   error_yaw = yaw_des - GyroZ;
   integral_yaw = integral_yaw_prev + error_yaw*dt;
-  if (channel_1_pwm < 1060) {   //Don't let integrator build if throttle is too low
+  if (pwm_channels[0] < 1060) {   //Don't let integrator build if throttle is too low
     integral_yaw = 0;
   }
   integral_yaw = constrain(integral_yaw, -i_limit, i_limit); //Saturate integrator to prevent unsafe buildup
@@ -1115,6 +1100,7 @@ void scaleCommands() {
   m4_command_PWM = m4_command_scaled*125 + 125;
   m5_command_PWM = m5_command_scaled*125 + 125;
   m6_command_PWM = m6_command_scaled*125 + 125;
+
   //Constrain commands to motors within oneshot125 bounds
   m1_command_PWM = constrain(m1_command_PWM, 125, 250);
   m2_command_PWM = constrain(m2_command_PWM, 125, 250);
@@ -1131,6 +1117,7 @@ void scaleCommands() {
   s5_command_PWM = s5_command_scaled*180;
   s6_command_PWM = s6_command_scaled*180;
   s7_command_PWM = s7_command_scaled*180;
+
   //Constrain commands to servos within servo library bounds
   s1_command_PWM = constrain(s1_command_PWM, 0, 180);
   s2_command_PWM = constrain(s2_command_PWM, 0, 180);
@@ -1139,67 +1126,6 @@ void scaleCommands() {
   s5_command_PWM = constrain(s5_command_PWM, 0, 180);
   s6_command_PWM = constrain(s6_command_PWM, 0, 180);
   s7_command_PWM = constrain(s7_command_PWM, 0, 180);
-
-}
-
-void getCommands() {
-  //DESCRIPTION: Get raw PWM values for every channel from the radio
-  /*
-   * Updates radio PWM commands in loop based on current available commands. channel_x_pwm is the raw command used in the rest of 
-   * the loop. If using a PWM or PPM receiver, the radio commands are retrieved from a function in the readPWM file separate from this one which 
-   * is running a bunch of interrupts to continuously update the radio readings. If using an SBUS receiver, the alues are pulled from the SBUS library directly.
-   * The raw radio commands are filtered with a first order low-pass filter to eliminate any really high frequency noise. 
-   */
-
-  #if defined USE_PPM_RX || defined USE_PWM_RX
-    channel_1_pwm = getRadioPWM(1);
-    channel_2_pwm = getRadioPWM(2);
-    channel_3_pwm = getRadioPWM(3);
-    channel_4_pwm = getRadioPWM(4);
-    channel_5_pwm = getRadioPWM(5);
-    channel_6_pwm = getRadioPWM(6);
-    
-  #elif defined USE_SBUS_RX
-    if (sbus.read(&sbusChannels[0], &sbusFailSafe, &sbusLostFrame))
-    {
-      //sBus scaling below is for Taranis-Plus and X4R-SB
-      float scale = 0.615;  
-      float bias  = 895.0; 
-      channel_1_pwm = sbusChannels[0] * scale + bias;
-      channel_2_pwm = sbusChannels[1] * scale + bias;
-      channel_3_pwm = sbusChannels[2] * scale + bias;
-      channel_4_pwm = sbusChannels[3] * scale + bias;
-      channel_5_pwm = sbusChannels[4] * scale + bias;
-      channel_6_pwm = sbusChannels[5] * scale + bias; 
-    }
-
-  #elif defined USE_DSM_RX
-    if (DSM.timedOut(micros())) {
-        //Serial.println("*** DSM RX TIMED OUT ***");
-    }
-    else if (DSM.gotNewFrame()) {
-        uint16_t values[num_DSM_channels];
-        DSM.getChannelValues(values, num_DSM_channels);
-
-        channel_1_pwm = values[0];
-        channel_2_pwm = values[1];
-        channel_3_pwm = values[2];
-        channel_4_pwm = values[3];
-        channel_5_pwm = values[4];
-        channel_6_pwm = values[5];
-    }
-  #endif
-  
-  //Low-pass the critical commands and update previous values
-  float b = 0.7; //Lower=slower, higher=noiser
-  channel_1_pwm = (1.0 - b)*channel_1_pwm_prev + b*channel_1_pwm;
-  channel_2_pwm = (1.0 - b)*channel_2_pwm_prev + b*channel_2_pwm;
-  channel_3_pwm = (1.0 - b)*channel_3_pwm_prev + b*channel_3_pwm;
-  channel_4_pwm = (1.0 - b)*channel_4_pwm_prev + b*channel_4_pwm;
-  channel_1_pwm_prev = channel_1_pwm;
-  channel_2_pwm_prev = channel_2_pwm;
-  channel_3_pwm_prev = channel_3_pwm;
-  channel_4_pwm_prev = channel_4_pwm;
 }
 
 void failSafe() {
@@ -1221,21 +1147,21 @@ void failSafe() {
   int check6 = 0;
 
   //Triggers for failure criteria
-  if (channel_1_pwm > maxVal || channel_1_pwm < minVal) check1 = 1;
-  if (channel_2_pwm > maxVal || channel_2_pwm < minVal) check2 = 1;
-  if (channel_3_pwm > maxVal || channel_3_pwm < minVal) check3 = 1;
-  if (channel_4_pwm > maxVal || channel_4_pwm < minVal) check4 = 1;
-  if (channel_5_pwm > maxVal || channel_5_pwm < minVal) check5 = 1;
-  if (channel_6_pwm > maxVal || channel_6_pwm < minVal) check6 = 1;
+  if (pwm_channels[0] > maxVal || pwm_channels[0] < minVal) check1 = 1;
+  if (pwm_channels[1] > maxVal || pwm_channels[1] < minVal) check2 = 1;
+  if (pwm_channels[2] > maxVal || pwm_channels[2] < minVal) check3 = 1;
+  if (pwm_channels[3] > maxVal || pwm_channels[3] < minVal) check4 = 1;
+  if (pwm_channels[4] > maxVal || pwm_channels[4] < minVal) check5 = 1;
+  if (pwm_channels[5] > maxVal || pwm_channels[5] < minVal) check6 = 1;
 
   //If any failures, set to default failsafe values
   if ((check1 + check2 + check3 + check4 + check5 + check6) > 0) {
-    channel_1_pwm = channel_1_fs;
-    channel_2_pwm = channel_2_fs;
-    channel_3_pwm = channel_3_fs;
-    channel_4_pwm = channel_4_fs;
-    channel_5_pwm = channel_5_fs;
-    channel_6_pwm = channel_6_fs;
+    pwm_channels[0] = channel_1_fs;
+    pwm_channels[1] = channel_2_fs;
+    pwm_channels[2] = channel_3_fs;
+    pwm_channels[3] = channel_4_fs;
+    pwm_channels[4] = channel_5_fs;
+    pwm_channels[5] = channel_6_fs;
   }
 }
 
@@ -1326,7 +1252,7 @@ void calibrateESCs() {
     
       digitalWrite(13, HIGH); //LED on to indicate we are not in main loop
 
-      getCommands(); //Pulls current available radio commands
+      rx->getCommands(pwm_channels); //Pulls current available radio commands
       failSafe(); //Prevent failures in event of bad receiver connection, defaults to failsafe values assigned in setup
       getDesState(); //Convert raw commands to normalized values based on saturated control limits
       getIMUdata(); //Pulls raw gyro, accelerometer, and magnetometer data from IMU and LP filters to remove noise
@@ -1438,7 +1364,7 @@ void throttleCut() {
    * called before commandMotors() is called so that the last thing checked is if the user is giving permission to command
    * the motors to anything other than minimum value. Safety first. 
    */
-  if (channel_5_pwm > 1500) {
+  if (pwm_channels[4] > 1500) {
     m1_command_PWM = 120;
     m2_command_PWM = 120;
     m3_command_PWM = 120;
@@ -1534,11 +1460,11 @@ void loopBlink() {
     if (blinkAlternate == 1) {
       blinkAlternate = 0;
       blink_delay = 100000;
-      }
+    }
     else if (blinkAlternate == 0) {
       blinkAlternate = 1;
       blink_delay = 2000000;
-      }
+    }
   }
 }
 
@@ -1556,17 +1482,17 @@ void printRadioData() {
   if (current_time - print_counter > 10000) {
     print_counter = micros();
     Serial.print(F(" CH1: "));
-    Serial.print(channel_1_pwm);
+    Serial.print(pwm_channels[0]);
     Serial.print(F(" CH2: "));
-    Serial.print(channel_2_pwm);
+    Serial.print(pwm_channels[1]);
     Serial.print(F(" CH3: "));
-    Serial.print(channel_3_pwm);
+    Serial.print(pwm_channels[2]);
     Serial.print(F(" CH4: "));
-    Serial.print(channel_4_pwm);
+    Serial.print(pwm_channels[3]);
     Serial.print(F(" CH5: "));
-    Serial.print(channel_5_pwm);
+    Serial.print(pwm_channels[4]);
     Serial.print(F(" CH6: "));
-    Serial.println(channel_6_pwm);
+    Serial.println(pwm_channels[5]);
   }
 }
 
