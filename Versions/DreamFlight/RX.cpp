@@ -4,7 +4,6 @@
 //Radio:
 //Note: If using SBUS, connect to pin 21 (RX5), if using DSM, connect to pin 15 (RX3)
 
-
 RX_PPM::RX_PPM() {
     // Declare interrupt pin
     pinMode(PPM_PIN, INPUT_PULLUP);

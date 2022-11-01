@@ -7,9 +7,11 @@
 #include <SPI.h>      //SPI communication
 #include <PWMServo.h> //Commanding any extra actuators, installed with teensyduino installer
 
-#ifndef HAVE_HWSERIAL0
+#ifdef MACOS
   #include "HardwareSerial.h"
   extern HardwareSerial Serial;
+#else 
+  #include "usb_serial.h"
 #endif
 
 #include "RX.h"

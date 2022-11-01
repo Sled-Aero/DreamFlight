@@ -4,9 +4,11 @@
 #include "Arduino.h"
 #include "SPI.h"
 
-#ifndef HAVE_HWSERIAL0
+#ifdef MACOS
   #include "HardwareSerial.h"
   extern HardwareSerial Serial;
+#else 
+  #include "usb_serial.h"
 #endif
 
 #define USE_MPU6050_I2C

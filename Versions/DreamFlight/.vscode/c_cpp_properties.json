@@ -4,8 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/Applications/Arduino.app/Contents/Java/hardware/**",
-                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/**",
+                "/Applications/Teensyduino.app/Contents/Java/hardware/**",
+                "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/cores/teensy4/**",
                 "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/libraries/**"
             ],
             "defines": [],
@@ -18,7 +18,7 @@
             "intelliSenseMode": "macos-clang-arm64",
             "compilerArgs": [
                 "-DARDUINO=10813",
-                "-DESP32"
+                "-DMACOS"
             ]
         }
     ],

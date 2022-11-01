@@ -921,8 +921,6 @@ void FlightController::failSafe() {
    * channel_x_pwm are set to default failsafe values specified in the setup. Comment out this function when troubleshooting 
    * your radio connection in case any extreme values are triggering this function to overwrite the printed variables.
    */
-  unsigned minVal = 800;
-  unsigned maxVal = 2200;
   int check1 = 0;
   int check2 = 0;
   int check3 = 0;

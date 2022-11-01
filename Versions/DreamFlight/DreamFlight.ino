@@ -1,9 +1,11 @@
 #include "Arduino.h"
 #include "FlightController.h"
 
-#ifndef HAVE_HWSERIAL0
+#ifdef MACOS
   #include "HardwareSerial.h"
   extern HardwareSerial Serial;
+#else 
+  #include "usb_serial.h"
 #endif
 
 //General stuff

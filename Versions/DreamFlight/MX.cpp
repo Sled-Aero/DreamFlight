@@ -1,10 +1,5 @@
 #include "MX.h"
 
-#ifndef HAVE_HWSERIAL0
-  #include "HardwareSerial.h"
-  extern HardwareSerial Serial;
-#endif
-
 MX_6050::MX_6050() {
     Wire.begin();
     Wire.setClock(1000000); //Note this is 2.5 times the spec sheet 400 kHz max...
