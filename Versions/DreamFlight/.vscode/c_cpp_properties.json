@@ -5,8 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/Applications/Arduino.app/Contents/Java/hardware/**",
-                "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/libraries/**",
-                "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/cores/usb_serial/**"
+                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/**",
+                "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/libraries/**"
             ],
             "defines": [],
             "macFrameworkPath": [

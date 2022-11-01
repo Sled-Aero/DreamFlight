@@ -1,6 +1,11 @@
 #include "Arduino.h"
 #include "FlightController.h"
 
+#ifndef HAVE_HWSERIAL0
+  #include "HardwareSerial.h"
+  extern HardwareSerial Serial;
+#endif
+
 //General stuff
 float dt;
 unsigned long current_time, prev_time;
@@ -24,8 +29,6 @@ uint16_t debug_flags = 0x0;
 RX *rx;
 MX *mx;
 FlightController* fc;
-
-extern usb_serial_class Serial; 
 
 void setup() {
   Serial.begin(500000); //USB serial

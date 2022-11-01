@@ -5,8 +5,8 @@
 #include "SPI.h"
 
 #ifndef HAVE_HWSERIAL0
-    #include "usb_api.h"
-    extern usb_serial_class Serial; 
+  #include "HardwareSerial.h"
+  extern HardwareSerial Serial;
 #endif
 
 #define USE_MPU6050_I2C

@@ -8,12 +8,13 @@
 #include <PWMServo.h> //Commanding any extra actuators, installed with teensyduino installer
 
 #ifndef HAVE_HWSERIAL0
-    #include "usb_api.h"
-    extern usb_serial_class Serial; 
+  #include "HardwareSerial.h"
+  extern HardwareSerial Serial;
 #endif
 
 #include "RX.h"
 #include "MX.h"
+
 
 //Debug print controls
 #define PRINT_RADIO_DATA     0x001
