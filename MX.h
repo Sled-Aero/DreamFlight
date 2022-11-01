@@ -56,7 +56,7 @@ public:
 
 
 class MX_6050 : public MX {
-    #include "src/MPU6050/MPU6050.h"
+    #include "lib/MPU6050/MPU6050.h"
 
     #define GYRO_FS_SEL_250    MPU6050_GYRO_FS_250
     #define GYRO_FS_SEL_500    MPU6050_GYRO_FS_500
@@ -78,7 +78,7 @@ private:
 
 #ifdef USE_MPU9250_SPI 
 class MX_9250 : public MX {
-    #include "src/MPU9250/MPU9250.h"
+    #include "lib/MPU9250/MPU9250.h"
 
     #define GYRO_FS_SEL_250    mpu9250.GYRO_RANGE_250DPS
     #define GYRO_FS_SEL_500    mpu9250.GYRO_RANGE_500DPS

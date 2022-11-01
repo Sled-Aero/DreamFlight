@@ -4,7 +4,6 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/Applications/Teensyduino.app/Contents/Java/hardware/**",
                 "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/cores/teensy4/**",
                 "/Applications/Teensyduino.app/Contents/Java/hardware/teensy/avr/libraries/**"
             ],

@@ -2,8 +2,8 @@
 #define RX_h
 
 #include "Arduino.h"
-#include "src/SBUS/SBUS.h"
-#include "src/DSMRX/DSMRX.h" 
+#include "lib/SBUS/SBUS.h"
+#include "lib/DSMRX/DSMRX.h" 
 
 //NOTE: Pin 13 is reserved for onboard LED, pins 18 and 19 are reserved for the MPU6050 IMU for default setup
 //Radio:
