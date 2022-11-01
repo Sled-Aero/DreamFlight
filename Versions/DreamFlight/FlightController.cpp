@@ -4,13 +4,16 @@
 //  USER-SPECIFIED VARIABLES                     
 //========================================================================================================================//
 
-//Radio failsafe values for every channel in the event that bad reciever data is detected. Recommended defaults:
-#define CHANNEL_1_FS 1000; //thro
-#define CHANNEL_2_FS 1500; //ail
-#define CHANNEL_3_FS 1500; //elev
-#define CHANNEL_4_FS 1500; //rudd
-#define CHANNEL_5_FS 2000; //gear, greater than 1500 = throttle cut
-#define CHANNEL_6_FS 2000; //aux1
+//Radio failsafe values for every channel in the event that bad receiver data is detected. Recommended defaults:
+#define DEFAULT_MIN_FS 800
+#define DEFAULT_MAX_FS 2200
+
+#define CHANNEL_1_FS 1000       //thro
+#define CHANNEL_2_FS 1500       //ail
+#define CHANNEL_3_FS 1500       //elev
+#define CHANNEL_4_FS 1500       //rudd
+#define CHANNEL_5_FS 2000       //gear, greater than 1500 = throttle cut
+#define CHANNEL_6_FS 2000       //aux1
 
 //Filter parameters - Defaults tuned for 2kHz loop rate; Do not touch unless you know what you are doing:
 const float B_madgwick = 0.04;  //Madgwick filter parameter
@@ -18,47 +21,31 @@ const float B_accel = 0.14;     //Accelerometer LP filter paramter, (MPU6050 def
 const float B_gyro = 0.1;       //Gyro LP filter paramter, (MPU6050 default: 0.1. MPU9250 default: 0.17)
 const float B_mag = 1.0;        //Magnetometer LP filter parameter
 
-//Magnetometer calibration parameters - if using MPU9250, uncomment calibrateMagnetometer() in void setup() to get these values, else just ignore these
-const float MagErrorX = 0.0;
-const float MagErrorY = 0.0; 
-const float MagErrorZ = 0.0;
-const float MagScaleX = 1.0;
-const float MagScaleY = 1.0;
-const float MagScaleZ = 1.0;
-
-//IMU calibration parameters - calibrate IMU using calculate_IMU_error() in the void setup() to get these values, then comment out calculate_IMU_error()
-float AccErrorX = 0.0;
-float AccErrorY = 0.0;
-float AccErrorZ = 0.0;
-float GyroErrorX = 0.0;
-float GyroErrorY= 0.0;
-float GyroErrorZ = 0.0;
-
 //Controller parameters (take note of defaults before modifying!): 
-float i_limit = 25.0;     //Integrator saturation level, mostly for safety (default 25.0)
-float maxRoll = 30.0;     //Max roll angle in degrees for angle mode (maximum ~70 degrees), deg/sec for rate mode 
-float maxPitch = 30.0;    //Max pitch angle in degrees for angle mode (maximum ~70 degrees), deg/sec for rate mode
-float maxYaw = 160.0;     //Max yaw rate in deg/sec
+float i_limit = 25.0;           //Integrator saturation level, mostly for safety (default 25.0)
+float maxRoll = 30.0;           //Max roll angle in degrees for angle mode (maximum ~70 degrees), deg/sec for rate mode 
+float maxPitch = 30.0;          //Max pitch angle in degrees for angle mode (maximum ~70 degrees), deg/sec for rate mode
+float maxYaw = 160.0;           //Max yaw rate in deg/sec
 
-float Kp_roll_angle = 0.2;    //Roll P-gain - angle mode 
-float Ki_roll_angle = 0.3;    //Roll I-gain - angle mode
-float Kd_roll_angle = 0.05;   //Roll D-gain - angle mode (has no effect on controlANGLE2)
-float B_loop_roll = 0.9;      //Roll damping term for controlANGLE2(), lower is more damping (must be between 0 to 1)
-float Kp_pitch_angle = 0.2;   //Pitch P-gain - angle mode
-float Ki_pitch_angle = 0.3;   //Pitch I-gain - angle mode
-float Kd_pitch_angle = 0.05;  //Pitch D-gain - angle mode (has no effect on controlANGLE2)
-float B_loop_pitch = 0.9;     //Pitch damping term for controlANGLE2(), lower is more damping (must be between 0 to 1)
+float Kp_roll_angle = 0.2;      //Roll P-gain - angle mode 
+float Ki_roll_angle = 0.3;      //Roll I-gain - angle mode
+float Kd_roll_angle = 0.05;     //Roll D-gain - angle mode (has no effect on controlANGLE2)
+float B_loop_roll = 0.9;        //Roll damping term for controlANGLE2(), lower is more damping (must be between 0 to 1)
+float Kp_pitch_angle = 0.2;     //Pitch P-gain - angle mode
+float Ki_pitch_angle = 0.3;     //Pitch I-gain - angle mode
+float Kd_pitch_angle = 0.05;    //Pitch D-gain - angle mode (has no effect on controlANGLE2)
+float B_loop_pitch = 0.9;       //Pitch damping term for controlANGLE2(), lower is more damping (must be between 0 to 1)
 
-float Kp_roll_rate = 0.15;    //Roll P-gain - rate mode
-float Ki_roll_rate = 0.2;     //Roll I-gain - rate mode
-float Kd_roll_rate = 0.0002;  //Roll D-gain - rate mode (be careful when increasing too high, motors will begin to overheat!)
-float Kp_pitch_rate = 0.15;   //Pitch P-gain - rate mode
-float Ki_pitch_rate = 0.2;    //Pitch I-gain - rate mode
-float Kd_pitch_rate = 0.0002; //Pitch D-gain - rate mode (be careful when increasing too high, motors will begin to overheat!)
+float Kp_roll_rate = 0.15;      //Roll P-gain - rate mode
+float Ki_roll_rate = 0.2;       //Roll I-gain - rate mode
+float Kd_roll_rate = 0.0002;    //Roll D-gain - rate mode (be careful when increasing too high, motors will begin to overheat!)
+float Kp_pitch_rate = 0.15;     //Pitch P-gain - rate mode
+float Ki_pitch_rate = 0.2;      //Pitch I-gain - rate mode
+float Kd_pitch_rate = 0.0002;   //Pitch D-gain - rate mode (be careful when increasing too high, motors will begin to overheat!)
 
-float Kp_yaw = 0.3;           //Yaw P-gain
-float Ki_yaw = 0.05;          //Yaw I-gain
-float Kd_yaw = 0.00015;       //Yaw D-gain (be careful when increasing too high, motors will begin to overheat!)
+float Kp_yaw = 0.3;             //Yaw P-gain
+float Ki_yaw = 0.05;            //Yaw I-gain
+float Kd_yaw = 0.00015;         //Yaw D-gain (be careful when increasing too high, motors will begin to overheat!)
 
 
 //=============================================================================================//
@@ -93,7 +80,8 @@ PWMServo servo7;
 // VOID SETUP                        
 //========================================================================================================================//
 
-FlightController::FlightController(RX* receiver) {
+FlightController::FlightController(MX* motion, RX* receiver) {
+  mx = motion;
   rx = receiver;
 
   //Initialize all pins
@@ -121,15 +109,10 @@ FlightController::FlightController(RX* receiver) {
   //radioSetup();
   
   //Set radio channels to default (safe) values before entering main loop
-  pwm_channels[0] = CHANNEL_1_FS;
-  pwm_channels[1] = CHANNEL_2_FS;
-  pwm_channels[2] = CHANNEL_3_FS;
-  pwm_channels[3] = CHANNEL_4_FS;
-  pwm_channels[4] = CHANNEL_5_FS;
-  pwm_channels[5] = CHANNEL_6_FS;
+  failSafe();
 
-  //Initialize IMU communication
-  IMUinit();
+  //Initialize IMU communication (no longer required: IMU init is done in MX)
+  // IMUinit();
 
   delay(5);
 
@@ -171,6 +154,7 @@ FlightController::FlightController(RX* receiver) {
 void FlightController::mainLoop(float dt) {
   //Get vehicle state
   getIMUdata(); //Pulls raw gyro, accelerometer, and magnetometer data from IMU and LP filters to remove noise
+
   Madgwick(GyroX, -GyroY, -GyroZ, -AccX, AccY, AccZ, MagY, -MagX, MagZ, dt); //Updates roll_IMU, pitch_IMU, and yaw_IMU angle estimates (degrees)
 
   //Compute desired state
@@ -340,53 +324,6 @@ void FlightController::controlMixer() {
   s5_command_scaled = 0;
   s6_command_scaled = 0;
   s7_command_scaled = 0;
- 
-}
-
-void FlightController::IMUinit() {
-  //DESCRIPTION: Initialize IMU
-  /*
-   * Don't worry about how this works.
-   */
-  #if defined USE_MPU6050_I2C
-    Wire.begin();
-    Wire.setClock(1000000); //Note this is 2.5 times the spec sheet 400 kHz max...
-    
-    mpu6050.initialize();
-    
-    if (mpu6050.testConnection() == false) {
-      Serial.println("MPU6050 initialization unsuccessful");
-      Serial.println("Check MPU6050 wiring or try cycling power");
-      while(1) {}
-    }
-
-    //From the reset state all registers should be 0x00, so we should be at
-    //max sample rate with digital low pass filter(s) off.  All we need to
-    //do is set the desired fullscale ranges
-    mpu6050.setFullScaleGyroRange(GYRO_SCALE);
-    mpu6050.setFullScaleAccelRange(ACCEL_SCALE);
-    
-  #elif defined USE_MPU9250_SPI
-    int status = mpu9250.begin();    
-
-    if (status < 0) {
-      Serial.println("MPU9250 initialization unsuccessful");
-      Serial.println("Check MPU9250 wiring or try cycling power");
-      Serial.print("Status: ");
-      Serial.println(status);
-      while(1) {}
-    }
-
-    //From the reset state all registers should be 0x00, so we should be at
-    //max sample rate with digital low pass filter(s) off.  All we need to
-    //do is set the desired fullscale ranges
-    mpu9250.setGyroRange(GYRO_SCALE);
-    mpu9250.setAccelRange(ACCEL_SCALE);
-    mpu9250.setMagCalX(MagErrorX, MagScaleX);
-    mpu9250.setMagCalY(MagErrorY, MagScaleY);
-    mpu9250.setMagCalZ(MagErrorZ, MagScaleZ);
-    mpu9250.setSrd(0); //sets gyro and accel read to 1khz, magnetometer read to 100hz
-  #endif
 }
 
 void FlightController::getIMUdata() {
@@ -404,12 +341,8 @@ void FlightController::getIMUdata() {
   int16_t MgY = 0;
   int16_t MgZ = 0;
 
-  #if defined USE_MPU6050_I2C
-    mpu6050.getMotion6(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ);
-  #elif defined USE_MPU9250_SPI
-    mpu9250.getMotion9(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ, &MgX, &MgY, &MgZ);
-  #endif
-
+  mx->getMotion(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ, &MgX, &MgY, &MgZ);
+ 
  //Accelerometer
   AccX = AcX / ACCEL_SCALE_FACTOR; //G's
   AccY = AcY / ACCEL_SCALE_FACTOR;
@@ -466,16 +399,12 @@ void FlightController::calculate_IMU_error() {
    * accelerometer values AccX, AccY, AccZ, GyroX, GyroY, GyroZ in getIMUdata(). This eliminates drift in the
    * measurement. 
    */
-  int16_t AcX,AcY,AcZ,GyX,GyY,GyZ;
+  int16_t AcX,AcY,AcZ,GyX,GyY,GyZ,MgX,MgY,MgZ;  
   
   //Read IMU values 12000 times
   int c = 0;
   while (c < 12000) {
-    #if defined USE_MPU6050_I2C
-      mpu6050.getMotion6(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ);
-    #elif defined USE_MPU9250_SPI
-      mpu9250.getMotion9(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ, &MgX, &MgY, &MgZ);
-    #endif
+    mx->getMotion(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ, &MgX, &MgY, &MgZ);
     
     AccX  = AcX / ACCEL_SCALE_FACTOR;
     AccY  = AcY / ACCEL_SCALE_FACTOR;
@@ -547,7 +476,7 @@ void FlightController::Madgwick(float gx, float gy, float gz, float ax, float ay
   #endif
   
   //Use 6DOF algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
-  if((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
+  if ((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
     Madgwick6DOF(gx, gy, gz, ax, ay, az, invSampleFreq);
     return;
   }
@@ -564,7 +493,7 @@ void FlightController::Madgwick(float gx, float gy, float gz, float ax, float ay
   qDot4 = 0.5f * (q0 * gz + q1 * gy - q2 * gx);
 
   //Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-  if(!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
+  if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
 
     //Normalise accelerometer measurement
     recipNorm = invSqrt(ax * ax + ay * ay + az * az);
@@ -1002,12 +931,12 @@ void FlightController::failSafe() {
   int check6 = 0;
 
   //Triggers for failure criteria
-  if (pwm_channels[0] > maxVal || pwm_channels[0] < minVal) check1 = 1;
-  if (pwm_channels[1] > maxVal || pwm_channels[1] < minVal) check2 = 1;
-  if (pwm_channels[2] > maxVal || pwm_channels[2] < minVal) check3 = 1;
-  if (pwm_channels[3] > maxVal || pwm_channels[3] < minVal) check4 = 1;
-  if (pwm_channels[4] > maxVal || pwm_channels[4] < minVal) check5 = 1;
-  if (pwm_channels[5] > maxVal || pwm_channels[5] < minVal) check6 = 1;
+  if (pwm_channels[0] > DEFAULT_MAX_FS || pwm_channels[0] < DEFAULT_MIN_FS) check1 = 1;
+  if (pwm_channels[1] > DEFAULT_MAX_FS || pwm_channels[1] < DEFAULT_MIN_FS) check2 = 1;
+  if (pwm_channels[2] > DEFAULT_MAX_FS || pwm_channels[2] < DEFAULT_MIN_FS) check3 = 1;
+  if (pwm_channels[3] > DEFAULT_MAX_FS || pwm_channels[3] < DEFAULT_MIN_FS) check4 = 1;
+  if (pwm_channels[4] > DEFAULT_MAX_FS || pwm_channels[4] < DEFAULT_MIN_FS) check5 = 1;
+  if (pwm_channels[5] > DEFAULT_MAX_FS || pwm_channels[5] < DEFAULT_MIN_FS) check6 = 1;
 
   //If any failures, set to default failsafe values
   if ((check1 + check2 + check3 + check4 + check5 + check6) > 0) {
@@ -1185,7 +1114,12 @@ void FlightController::throttleCut() {
   }
 }
 
-void FlightController::printDebug(uint16_t flags) {
+void FlightController::printDebug(uint16_t flags, float dt) {
+  if (flags & PRINT_LOOP_RATE) {
+    Serial.print(F("dt = "));
+    Serial.println(dt*1000000.0);
+  }
+
   if (flags & PRINT_RADIO_DATA) {
     Serial.print(F(" CH1: "));
     Serial.print(pwm_channels[0]);

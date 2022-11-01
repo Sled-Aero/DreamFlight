@@ -22,11 +22,10 @@ bool blinkAlternate;
 uint16_t debug_flags = 0x0;
 
 RX *rx;
+MX *mx;
 FlightController* fc;
 
-#ifndef HAVE_HWSERIAL0
-  extern HardwareSerial Serial; 
-#endif
+extern usb_serial_class Serial; 
 
 void setup() {
   Serial.begin(500000); //USB serial
@@ -38,7 +37,10 @@ void setup() {
   //rx = new RX_SBUS(Serial3);
   //rx = new RX_DSM(Serial3);
 
-  fc = new FlightController(rx);
+  mx = new MX_6050();
+  //mx = new MX_9250();
+
+  fc = new FlightController(mx, rx);
 
   //Indicate entering main loop with 3 quick blinks
   setupBlink(3, 160, 70); //numBlinks, upTime (ms), downTime (ms)
@@ -58,13 +60,8 @@ void loop() {
 
     // Debug
     if ((debug_flags) && (current_time - print_counter > 10000)) {
-         print_counter = micros();
-         fc->printDebug(debug_flags);
-
-        if (debug_flags & PRINT_LOOP_RATE) {
-            Serial.print(F("dt = "));
-            Serial.println(dt*1000000.0);
-        }
+        print_counter = micros();
+        fc->printDebug(debug_flags, dt);
     }
 
     // Flight Controller main loop
