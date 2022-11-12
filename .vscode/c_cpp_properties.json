@@ -17,7 +17,8 @@
             "intelliSenseMode": "macos-clang-arm64",
             "compilerArgs": [
                 "-DARDUINO=10813",
-                "-DMACOS"
+                "-DMACOS",
+                "-DARDUINO_TEENSY41"
             ]
         }
     ],

@@ -1,4 +1,5 @@
 #include "MX.h"
+#include "Wire.h"
 
 MX_6050::MX_6050() {
     Wire.begin();

@@ -109,6 +109,7 @@ FlightController::FlightController(MX* motion, RX* receiver) {
   //radioSetup();
   
   //Set radio channels to default (safe) values before entering main loop
+  // TODO: this belongs in RX methinks?
   failSafe();
 
   //Initialize IMU communication (no longer required: IMU init is done in MX)
