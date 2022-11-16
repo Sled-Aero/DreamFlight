@@ -3,6 +3,8 @@
 
 #include "Arduino.h"
 #include "SPI.h"
+#define __AVR__  # Arduino Leonardo
+#include "Wire.h"
 
 #ifdef MACOS
   #include "HardwareSerial.h"

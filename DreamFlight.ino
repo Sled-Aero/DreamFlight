@@ -30,6 +30,7 @@ uint16_t debug_flags = 0x0;
 
 RX *rx;
 MX *mx;
+EX *ex;
 FlightController* fc;
 
 void setup() {
@@ -45,7 +46,9 @@ void setup() {
   mx = new MX_6050();
   //mx = new MX_9250();
 
-  fc = new FlightController(mx, rx);
+  ex = new EX_Teensy();
+
+  fc = new FlightController(mx, rx, ex);
 
   //Indicate entering main loop with 3 quick blinks
   setupBlink(3, 160, 70); //numBlinks, upTime (ms), downTime (ms)

@@ -16,6 +16,7 @@
 
 #include "RX.h"
 #include "MX.h"
+#include "EX.h"
 
 
 //Debug print controls
@@ -69,33 +70,6 @@ private:
     float Kd_yaw = 0.00015;       //Yaw D-gain (be careful when increasing too high, motors will begin to overheat!)
 
 
-    //=============================================================================================//
-    //  DECLARE PINS     
-    //=============================================================================================//                                      
-
-    //OneShot125 ESC pin outputs:
-    const int m1Pin = 0;
-    const int m2Pin = 1;
-    const int m3Pin = 2;
-    const int m4Pin = 3;
-    const int m5Pin = 4;
-    const int m6Pin = 5;
-    //PWM servo or ESC outputs:
-    const int servo1Pin = 6;
-    const int servo2Pin = 7;
-    const int servo3Pin = 8;
-    const int servo4Pin = 9;
-    const int servo5Pin = 10;
-    const int servo6Pin = 11;
-    const int servo7Pin = 12;
-    PWMServo servo1;  //Create servo objects to control a servo or ESC with PWM
-    PWMServo servo2;
-    PWMServo servo3;
-    PWMServo servo4;
-    PWMServo servo5;
-    PWMServo servo6;
-    PWMServo servo7;
-
     //========================================================================================================================//
     //DECLARE GLOBAL VARIABLES
 
@@ -104,6 +78,7 @@ private:
     unsigned long pwm_channels_prev[6];
     RX* rx;
     MX* mx;
+    EX* ex;
 
     //IMU
     float AccX, AccY, AccZ;
@@ -164,8 +139,10 @@ private:
     void controlRATE(float dt);
     void scaleCommands();
     void failSafe();
-    void commandMotors();
     void armMotors();
+    void commandMotors();
+    void armServos();
+    void commandServos();
     float floatFaderLinear(float param, float param_min, float param_max, float fadeTime, int state, int loopFreq);
     float floatFaderLinear2(float param, float param_des, float param_lower, float param_upper, float fadeTime_up, float fadeTime_down, int loopFreq);
     void switchRollYaw(int reverseRoll, int reverseYaw);
@@ -176,7 +153,7 @@ protected:
     FlightController() = default;
 
 public:
-    FlightController(MX* mx, RX* rx);
+    FlightController(MX* mx, RX* rx, EX* ex);
     ~FlightController();
 
     void mainLoop(float dt);

@@ -48,60 +48,15 @@ float Ki_yaw = 0.05;            //Yaw I-gain
 float Kd_yaw = 0.00015;         //Yaw D-gain (be careful when increasing too high, motors will begin to overheat!)
 
 
-//=============================================================================================//
-//  DECLARE PINS     
-//=============================================================================================//                                          
-
-//OneShot125 ESC pin outputs:
-const int m1Pin = 0;
-const int m2Pin = 1;
-const int m3Pin = 2;
-const int m4Pin = 3;
-const int m5Pin = 4;
-const int m6Pin = 5;
-//PWM servo or ESC outputs:
-const int servo1Pin = 6;
-const int servo2Pin = 7;
-const int servo3Pin = 8;
-const int servo4Pin = 9;
-const int servo5Pin = 10;
-const int servo6Pin = 11;
-const int servo7Pin = 12;
-PWMServo servo1;  //Create servo objects to control a servo or ESC with PWM
-PWMServo servo2;
-PWMServo servo3;
-PWMServo servo4;
-PWMServo servo5;
-PWMServo servo6;
-PWMServo servo7;
-
 
 //========================================================================================================================//
 // VOID SETUP                        
 //========================================================================================================================//
 
-FlightController::FlightController(MX* motion, RX* receiver) {
+FlightController::FlightController(MX* motion, RX* receiver, EX* escs) {
   mx = motion;
   rx = receiver;
-
-  //Initialize all pins
-  pinMode(m1Pin, OUTPUT);
-  pinMode(m2Pin, OUTPUT);
-  pinMode(m3Pin, OUTPUT);
-  pinMode(m4Pin, OUTPUT);
-  pinMode(m5Pin, OUTPUT);
-  pinMode(m6Pin, OUTPUT);
-
-  servo1.attach(servo1Pin, 900, 2100); //Pin, min PWM value, max PWM value
-  servo2.attach(servo2Pin, 900, 2100);
-  servo3.attach(servo3Pin, 900, 2100);
-  servo4.attach(servo4Pin, 900, 2100);
-  servo5.attach(servo5Pin, 900, 2100);
-  servo6.attach(servo6Pin, 900, 2100);
-  servo7.attach(servo7Pin, 900, 2100);
-
-  //Set built in LED to turn on to signal startup
-  digitalWrite(13, HIGH);
+  ex = escs;
 
   delay(5);
 
@@ -121,13 +76,7 @@ FlightController::FlightController(MX* motion, RX* receiver) {
   //calculate_IMU_error(); //Calibration parameters printed to serial monitor. Paste these in the user specified variables section, then comment this out forever.
 
   //Arm servo channels
-  servo1.write(0); //Command servo angle from 0-180 degrees (1000 to 2000 PWM)
-  servo2.write(0); //Set these to 90 for servos if you do not want them to briefly max out on startup
-  servo3.write(0); //Keep these at 0 if you are using servo outputs for motors
-  servo4.write(0);
-  servo5.write(0);
-  servo6.write(0);
-  servo7.write(0);
+  armServos();
   
   delay(5);
 
@@ -175,13 +124,9 @@ void FlightController::mainLoop(float dt) {
 
   //Command actuators
   commandMotors(); //Sends command pulses to each motor pin using OneShot125 protocol
-  servo1.write(s1_command_PWM); //Writes PWM value to servo object
-  servo2.write(s2_command_PWM);
-  servo3.write(s3_command_PWM);
-  servo4.write(s4_command_PWM);
-  servo5.write(s5_command_PWM);
-  servo6.write(s6_command_PWM);
-  servo7.write(s7_command_PWM);
+
+  //Write PWM values to servo objects
+  commandServos();
     
   //Get vehicle commands for next loop iteration
   rx->getCommands(pwm_channels); //Pulls current available radio commands
@@ -226,13 +171,6 @@ void FlightController::calibrateESCs(float dt) {
 
     //throttleCut(); //Directly sets motor commands to low based on state of ch5
 
-    servo1.write(s1_command_PWM); 
-    servo2.write(s2_command_PWM);
-    servo3.write(s3_command_PWM);
-    servo4.write(s4_command_PWM);
-    servo5.write(s5_command_PWM);
-    servo6.write(s6_command_PWM);
-    servo7.write(s7_command_PWM);
     commandMotors(); //Sends command pulses to each motor pin using OneShot125 protocol
 
     //printRadioData(); //Radio pwm values (expected: 1000 to 2000)
@@ -948,6 +886,19 @@ void FlightController::failSafe() {
   }
 }
 
+void FlightController::armMotors() {
+  //DESCRIPTION: Sends many command pulses to the motors, to be used to arm motors in the void setup()
+  /*  
+   *  Loops over the commandMotors() function 50 times with a delay in between, simulating how the commandMotors()
+   *  function is used in the main loop. Ensures motors arm within the void setup() where there are some delays
+   *  for other processes that sometimes prevent motors from arming.
+   */
+  for (int i = 0; i <= 50; i++) {
+    commandMotors();
+    delay(2);
+  }
+}
+
 void FlightController::commandMotors() {
   //DESCRIPTION: Send pulses to motor pins, oneshot125 protocol
   /*
@@ -964,61 +915,71 @@ void FlightController::commandMotors() {
   int flagM6 = 0;
   
   //Write all motor pins high
-  digitalWrite(m1Pin, HIGH);
-  digitalWrite(m2Pin, HIGH);
-  digitalWrite(m3Pin, HIGH);
-  digitalWrite(m4Pin, HIGH);
-  digitalWrite(m5Pin, HIGH);
-  digitalWrite(m6Pin, HIGH);
+  ex->writeMotor1(HIGH);
+  ex->writeMotor2(HIGH);
+  ex->writeMotor3(HIGH);
+  ex->writeMotor4(HIGH);
+  ex->writeMotor5(HIGH);
+  ex->writeMotor6(HIGH);
+
   pulseStart = micros();
 
   //Write each motor pin low as correct pulse length is reached
   while (wentLow < 6 ) { //Keep going until final (6th) pulse is finished, then done
     timer = micros();
     if ((m1_command_PWM <= timer - pulseStart) && (flagM1==0)) {
-      digitalWrite(m1Pin, LOW);
+      ex->writeMotor1(LOW);
       wentLow = wentLow + 1;
       flagM1 = 1;
     }
     if ((m2_command_PWM <= timer - pulseStart) && (flagM2==0)) {
-      digitalWrite(m2Pin, LOW);
+      ex->writeMotor2(LOW);
       wentLow = wentLow + 1;
       flagM2 = 1;
     }
     if ((m3_command_PWM <= timer - pulseStart) && (flagM3==0)) {
-      digitalWrite(m3Pin, LOW);
+      ex->writeMotor3(LOW);
       wentLow = wentLow + 1;
       flagM3 = 1;
     }
     if ((m4_command_PWM <= timer - pulseStart) && (flagM4==0)) {
-      digitalWrite(m4Pin, LOW);
+      ex->writeMotor4(LOW);
       wentLow = wentLow + 1;
       flagM4 = 1;
     } 
     if ((m5_command_PWM <= timer - pulseStart) && (flagM5==0)) {
-      digitalWrite(m5Pin, LOW);
+      ex->writeMotor5(LOW);
       wentLow = wentLow + 1;
       flagM5 = 1;
     } 
     if ((m6_command_PWM <= timer - pulseStart) && (flagM6==0)) {
-      digitalWrite(m6Pin, LOW);
+      ex->writeMotor6(LOW);
       wentLow = wentLow + 1;
       flagM6 = 1;
     } 
   }
 }
 
-void FlightController::armMotors() {
-  //DESCRIPTION: Sends many command pulses to the motors, to be used to arm motors in the void setup()
-  /*  
-   *  Loops over the commandMotors() function 50 times with a delay in between, simulating how the commandMotors()
-   *  function is used in the main loop. Ensures motors arm within the void setup() where there are some delays
-   *  for other processes that sometimes prevent motors from arming.
-   */
-  for (int i = 0; i <= 50; i++) {
-    commandMotors();
-    delay(2);
-  }
+void FlightController::armServos() {
+    //Arm servo channels
+    ex->writeServo1(0);
+    ex->writeServo2(0);
+    ex->writeServo3(0);
+    ex->writeServo4(0);
+    ex->writeServo5(0);
+    ex->writeServo6(0);
+    ex->writeServo7(0);
+}
+
+void FlightController::commandServos() {
+   //Write PWM values to servo objects
+    ex->writeServo1(s1_command_PWM);
+    ex->writeServo2(s2_command_PWM);
+    ex->writeServo3(s3_command_PWM);
+    ex->writeServo4(s4_command_PWM);
+    ex->writeServo5(s5_command_PWM);
+    ex->writeServo6(s6_command_PWM);
+    ex->writeServo7(s7_command_PWM);
 }
 
 float FlightController::floatFaderLinear(float param, float param_min, float param_max, float fadeTime, int state, int loopFreq) {
